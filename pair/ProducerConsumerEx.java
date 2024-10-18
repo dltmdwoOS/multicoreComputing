@@ -2,31 +2,34 @@ public class ProducerConsumerEx{
     public static void main(String[] args) {
         Shop c = new Shop();
         Producer p1 = new Producer(c, 1);
+        Producer p2 = new Producer(c, 1);
+        Producer p3 = new Producer(c, 1);
         Consumer c1 = new Consumer(c, 1);
+        Consumer c2 = new Consumer(c, 1);
         p1.start();
+        p2.start();
+        p3.start();
         c1.start();
     }
 }
 class Shop{
     private int materials;
-    private boolean available = false;
     public synchronized int get() throws InterruptedException{
-        while (!available) {
-            wait();
+        while (materials<=0) { // if (materials<=0) <<<<< Bug#1을 일으킴
+            this.wait(); // wait()을 써도 됨.
         }
+        materials--;
         System.out.println("Consumed value 1 get : " + materials);
-        available = false;
-        notify();
+        this.notify(); // notify()을 써도 됨.
         return materials;
     }
     public synchronized void put(int value) throws InterruptedException {
-        while (available) {
-            wait();
+        while (materials>=10) {
+            this.wait();
         }
-        materials = value;
+        materials++;
         System.out.println("Produced value 1 put : " + materials);
-        available = true;
-        notify();
+        this.notify();
     }
 }
 class Consumer extends Thread{
@@ -54,7 +57,7 @@ class Producer extends Thread{
         this.number = number;
     }
     public void run() {
-        for (int i = 0; i < 10; i++) { 
+        for (int i = 0; i < 5; i++) { 
             try {
                 shop.put(i);
             } catch (InterruptedException e) {

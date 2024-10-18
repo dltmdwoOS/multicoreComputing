@@ -11,7 +11,7 @@ public class lec4 {
 }
 
 class Account{
-    private int balance=0;
+    private static int balance=0;
     public void deposit(int val){
         synchronized (this){
             balance += val;
